@@ -1,0 +1,9 @@
+{
+  "name": "prepara-unc",
+  "version": "1.0.0",
+  "description": "Plataforma de preparación para admisión UNC",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  }
+}

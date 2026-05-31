@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PreparaUNC — Plataforma de Admisión</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --white:#ffffff;--bg:#f7f8fc;--bg2:#eef0f8;--surface:#ffffff;
+  --border:#e4e8f0;--border2:#cdd3e0;--text:#0f1523;--text2:#4a5568;--text3:#8a95a8;
+  --blue:#2563eb;--blue2:#1d4ed8;--blue-light:#dbeafe;--blue-mid:#93c5fd;
+  --red:#dc2626;--red-light:#fee2e2;--green:#16a34a;--green-light:#dcfce7;
+  --amber:#d97706;--amber-light:#fef3c7;--purple:#7c3aed;--purple-light:#ede9fe;
+  --radius-sm:8px;--radius:12px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:0 12px 32px rgba(37,99,235,0.12),0 4px 8px rgba(0,0,0,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;}
+.app{display:grid;grid-template-columns:240px 1fr;grid-template-rows:64px 1fr;min-height:100vh;}
+@media(max-width:768px){.app{grid-template-columns:1fr;grid-template-rows:56px 1fr auto;}.sidebar{display:none!important;}.bottom-nav{display:flex!important;}.topbar{padding:0 16px;}.main-content{padding:16px!important;}}
+.topbar{grid-column:1/-1;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:var(--shadow);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#1d4ed8);display:flex;align-items:center;justify-content:center;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;box-shadow:0 2px 8px rgba(37,99,235,0.35);}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text);}
+.logo-text span{color:var(--blue);}
+.logo-badge{font-size:10px;background:var(--blue-light);color:var(--blue);padding:2px 7px;border-radius:20px;font-weight:600;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.top-btn{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.15s;}
+.top-btn:hover{background:var(--bg);}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-size:14px;font-weight:500;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);}
+.nav-item .icon{font-size:17px;width:20px;text-align:center;flex-shrink:0;}
+.nav-divider{height:1px;background:var(--border);margin:8px 4px;}
+.nav-section{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding:4px 14px 2px;}
+.sidebar-user{margin-top:auto;padding:12px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);}
+.sidebar-user-name{font-size:13px;font-weight:600;color:var(--text);}
+.sidebar-user-mod{font-size:11px;color:var(--text3);margin-top:2px;}
+.main-content{overflow-y:auto;padding:28px 32px;max-width:100%;}
+.page{display:none;}
+.page.active{display:block;animation:fadeUp 0.25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--white);border-top:1px solid var(--border);padding:8px 0 12px;box-shadow:0 -4px 16px rgba(0,0,0,0.06);}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;background:none;border:none;color:var(--text3);font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;}
+.bnav-item.active{color:var(--blue);}
+.bnav-icon{font-size:20px;line-height:1;}
+.bnav-label{font-size:10px;font-weight:600;}
+@media(max-width:768px){.main-content{padding-bottom:80px!important;}}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);}
+.card-lg{padding:24px;border-radius:var(--radius-xl);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.grid-3{grid-template-columns:1fr 1fr;}.grid-2{grid-template-columns:1fr;}}
+.page-header{margin-bottom:24px;}
+.page-header h1{font-size:26px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.page-header p{color:var(--text3);font-size:14px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;}
+.stat-icon{width:44px;height:44px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);line-height:1;}
+.stat-lbl{font-size:12px;color:var(--text3);margin-top:3px;}
+.modo-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);}
+.modo-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--blue-mid);}
+.modo-card:active{transform:scale(0.98);}
+.modo-icon{font-size:28px;margin-bottom:10px;}
+.modo-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.modo-desc{font-size:12px;color:var(--text3);line-height:1.5;}
+.modo-tag{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;}
+.prog-wrap{background:var(--bg2);border-radius:4px;height:6px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;}
+.pill{padding:7px 15px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid var(--border);background:var(--white);color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.pill:hover{border-color:var(--blue-mid);color:var(--blue);}
+.pill.sel{background:var(--blue-light);border-color:var(--blue);color:var(--blue);}
+.field{margin-bottom:16px;}
+.field-label{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:block;}
+.field-input{width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+.field-input:focus{border-color:var(--blue);}
+.field-input::placeholder{color:var(--text3);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border-radius:var(--radius-sm);border:1.5px solid transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
+.btn-primary{background:var(--blue);color:white;border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,0.4);}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-outline{background:white;color:var(--text2);border-color:var(--border2);}
+.btn-outline:hover{background:var(--bg);color:var(--text);}
+.btn-full{width:100%;}
+.sec-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.area-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--white);cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow);margin-bottom:7px;}
+.area-item:hover{border-color:var(--blue-mid);background:#f8fbff;}
+.area-item.sel{border-color:var(--blue);background:var(--blue-light);}
+.area-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.area-name{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.area-count{font-size:11px;color:var(--text3);}
+.area-pct{font-size:12px;font-weight:600;color:var(--text3);}
+.tema-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);cursor:pointer;transition:all 0.12s;margin-bottom:5px;}
+.tema-item:hover{background:var(--bg);border-color:var(--blue-mid);}
+.tema-item.sel{background:#f0f9ff;border-color:#0ea5e9;}
+.tema-name{font-size:13px;color:var(--text2);}
+.tema-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0;}
+.tema-item.sel .tema-check{background:#0ea5e9;border-color:#0ea5e9;}
+.nivel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+@media(max-width:500px){.nivel-grid{grid-template-columns:repeat(2,1fr);}}
+.nivel-card{padding:12px 8px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--white);cursor:pointer;transition:all 0.15s;text-align:center;}
+.nivel-card:hover{border-color:var(--blue-mid);}
+.nivel-card.sel{border-color:var(--blue);background:var(--blue-light);}
+.nivel-name{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:3px;}
+.nivel-card.sel .nivel-name{color:var(--blue);}
+.nivel-uni{font-size:9px;color:var(--text3);line-height:1.3;}
+.nivel-emoji{font-size:18px;margin-bottom:5px;}
+.cant-row{display:flex;align-items:center;gap:12px;margin-bottom:24px;justify-content:center;}
+.cant-btn{width:40px;height:40px;border-radius:10px;border:1.5px solid var(--border2);background:var(--white);color:var(--text);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+.cant-btn:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue);}
+.cant-display{text-align:center;min-width:70px;}
+.cant-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text);line-height:1;}
+.cant-lbl{font-size:11px;color:var(--text3);}
+.quiz-topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:64px;z-index:50;box-shadow:var(--shadow);}
+@media(max-width:768px){.quiz-topbar{top:56px;padding:12px 16px;}}
+.quiz-back{width:36px;height:36px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;transition:all 0.15s;}
+.quiz-back:hover{background:var(--bg);}
+.quiz-info{flex:1;}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.quiz-counter{font-size:13px;font-weight:600;color:var(--text2);}
+.quiz-timer{font-size:13px;font-weight:700;color:var(--amber);}
+.quiz-prog{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.quiz-prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;transition:width 0.4s ease;}
+.quiz-body{max-width:720px;margin:0 auto;padding:28px 24px;}
+@media(max-width:768px){.quiz-body{padding:16px;}}
+.quiz-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:0.04em;}
+.tag-blue{background:var(--blue-light);color:var(--blue);}
+.tag-green{background:var(--green-light);color:var(--green);}
+.tag-amber{background:var(--amber-light);color:var(--amber);}
+.tag-purple{background:var(--purple-light);color:var(--purple);}
+.tag-red{background:var(--red-light);color:var(--red);}
+.quiz-question{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:var(--text);line-height:1.55;margin-bottom:24px;}
+@media(max-width:600px){.quiz-question{font-size:16px;}}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:20px;}
+.quiz-opt{display:flex;align-items:flex-start;gap:13px;padding:14px 16px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--white);cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow);}
+.quiz-opt:hover:not(.done){border-color:var(--blue-mid);background:#f8fbff;transform:translateX(3px);}
+.quiz-opt.correct{border-color:var(--green);background:var(--green-light);}
+.quiz-opt.wrong{border-color:var(--red);background:var(--red-light);}
+.opt-letter{width:26px;height:26px;border-radius:7px;flex-shrink:0;border:1.5px solid var(--border2);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text3);transition:all 0.15s;}
+.quiz-opt.correct .opt-letter{background:var(--green);border-color:var(--green);color:white;}
+.quiz-opt.wrong .opt-letter{background:var(--red);border-color:var(--red);color:white;}
+.opt-text{font-size:14px;color:var(--text2);line-height:1.5;padding-top:2px;}
+.quiz-opt.correct .opt-text{color:var(--green);font-weight:500;}
+.quiz-opt.wrong .opt-text{color:var(--red);}
+.solucionario{background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;display:none;animation:fadeUp 0.3s ease;}
+.solucionario.wrong-sol{background:#fff7ed;border-color:#fcd34d;}
+.solucionario.visible{display:block;}
+.sol-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.sol-icon{font-size:18px;}
+.sol-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--green);}
+.solucionario.wrong-sol .sol-title{color:var(--amber);}
+.sol-text{font-size:13px;color:var(--text2);line-height:1.7;}
+.dot-pulse{display:flex;gap:4px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:dp 1.2s infinite;}
+.dot:nth-child(2){animation-delay:0.2s;}
+.dot:nth-child(3){animation-delay:0.4s;}
+@keyframes dp{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+.quiz-nav-row{display:flex;gap:10px;padding:0 24px 28px;max-width:720px;margin:0 auto;}
+@media(max-width:768px){.quiz-nav-row{padding:0 16px 24px;}}
+.result-hero{background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:var(--radius-xl);padding:36px;text-align:center;color:white;margin-bottom:20px;position:relative;overflow:hidden;}
+.result-hero::before{content:'';position:absolute;top:-40%;right:-10%;width:220px;height:220px;background:rgba(255,255,255,0.07);border-radius:50%;}
+.result-score-big{font-family:'Syne',sans-serif;font-size:64px;font-weight:800;line-height:1;margin-bottom:6px;}
+.result-title-h{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+.result-sub{font-size:14px;opacity:0.8;}
+.review-item{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px;box-shadow:var(--shadow);}
+.review-q{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.review-ans-row{display:flex;flex-wrap:wrap;gap:6px;}
+.review-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;}
+.sim-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.sim-card:hover{border-color:var(--blue-mid);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sim-card.sel{border-color:var(--blue);background:var(--blue-light);}
+.sim-icon{width:46px;height:46px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.sim-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sim-card-desc{font-size:12px;color:var(--text3);}
+.profile-hero-card{background:linear-gradient(135deg,var(--blue),#7c3aed);border-radius:var(--radius-xl);padding:28px;color:white;margin-bottom:20px;display:flex;align-items:center;gap:18px;box-shadow:var(--shadow-lg);}
+.profile-avatar-big{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.2);border:3px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:white;flex-shrink:0;}
+.profile-name-big{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+.profile-mod-txt{font-size:13px;opacity:0.75;margin-top:3px;}
+.logro{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow);transition:all 0.2s;}
+.logro.unlocked{border-color:var(--blue);background:var(--blue-light);}
+.logro-icon{font-size:26px;margin-bottom:6px;}
+.logro-name{font-size:11px;font-weight:600;color:var(--text3);line-height:1.3;}
+.logro.unlocked .logro-name{color:var(--blue);}
+.loading-screen{position:fixed;inset:0;z-index:999;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.loading-logo{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text);}
+.loading-logo span{color:var(--blue);}
+.loading-sub{font-size:14px;color:var(--text3);}
+.loading-bar-wrap{width:180px;height:4px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-top:8px;}
+.loading-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;animation:loadbar 2s ease forwards;}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(15,21,35,0.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:var(--radius-xl);padding:32px;width:100%;max-width:460px;box-shadow:0 24px 64px rgba(0,0,0,0.16);animation:fadeUp 0.3s ease;}
+.modal-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.modal-sub{font-size:14px;color:var(--text3);margin-bottom:22px;}
+.modal-skip{text-align:center;margin-top:14px;font-size:13px;color:var(--text3);cursor:pointer;}
+.modal-skip span{color:var(--blue);font-weight:600;}
+.hero-banner{background:linear-gradient(135deg,#1e40af,#7c3aed);border-radius:var(--radius-xl);padding:28px 32px;color:white;margin-bottom:20px;position:relative;overflow:hidden;}
+.hero-banner::after{content:'';position:absolute;bottom:-30%;right:-5%;width:200px;height:200px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.hero-greeting{font-size:13px;opacity:0.75;margin-bottom:4px;}
+.hero-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:10px;}
+.hero-mod-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.18);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;backdrop-filter:blur(4px);}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--text);color:white;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(min-width:769px){.toast{bottom:24px;}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div style="font-size:40px;">📚</div>
+  <div class="loading-logo">Prepara<span>UNC</span></div>
+  <div class="loading-sub">Plataforma de admisión UNC 2025</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <div style="font-size:32px;margin-bottom:12px;">🎓</div>
+    <div class="modal-title">Bienvenido a PreparaUNC</div>
+    <div class="modal-sub">Crea tu cuenta gratis para guardar tu progreso y estadísticas.</div>
+    <div class="field"><label class="field-label">Nombre completo</label><input class="field-input" id="regName" placeholder="Ej. María García Ríos" type="text"></div>
+    <div class="field"><label class="field-label">Correo electrónico (opcional)</label><input class="field-input" id="regEmail" placeholder="tucorreo@gmail.com" type="email"></div>
+    <div class="field">
+      <label class="field-label">Módulo al que postulas</label>
+      <select class="field-input" id="regMod">
+        <option value="">— Selecciona tu módulo —</option>
+        <option value="A">Módulo A — Ingenierías y Empresariales</option>
+        <option value="B">Módulo B — Medicina Humana</option>
+        <option value="C">Módulo C — Derecho, Educación, Sociología</option>
+        <option value="D">Módulo D — Ciencias Agrarias</option>
+        <option value="E">Módulo E — Salud y Biológicas</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="registerUser()">Crear cuenta y empezar</button>
+    <div class="modal-skip" onclick="skipRegister()">Continuar sin registrarme — <span>practicar ahora</span></div>
+  </div>
+</div>
+
+<div class="app">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="logo" onclick="showPage('inicio')">
+        <div class="logo-icon">P</div>
+        <div class="logo-text">Prepara<span>UNC</span></div>
+      </div>
+      <span class="logo-badge">2025</span>
+    </div>
+    <div class="topbar-right">
+      <div class="avatar" id="topAvatar" onclick="showPage('perfil')">?</div>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="nav-section">Principal</div>
+    <button class="nav-item active" id="nav-inicio" onclick="showPage('inicio')"><span class="icon">🏠</span>Inicio</button>
+    <button class="nav-item" id="nav-practicar" onclick="showPage('practicar')"><span class="icon">📚</span>Practicar</button>
+    <button class="nav-item" id="nav-simulacro" onclick="showPage('simulacro')"><span class="icon">🏆</span>Simulacros</button>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Cuenta</div>
+    <button class="nav-item" id="nav-perfil" onclick="showPage('perfil')"><span class="icon">👤</span>Mi perfil</button>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="sidebarName">Invitado</div>
+      <div class="sidebar-user-mod" id="sidebarMod">Sin módulo</div>
+    </div>
+  </aside>
+
+  <main class="main-content" id="mainContent">
+
+    <!-- INICIO -->
+    <div class="page active" id="page-inicio">
+      <div class="hero-banner">
+        <div class="hero-greeting" id="heroGreeting">Bienvenido</div>
+        <div class="hero-name" id="heroName">¡Hola! 👋</div>
+        <div class="hero-mod-chip" id="heroMod">📌 Selecciona tu módulo</div>
+      </div>
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="stat-card"><div class="stat-icon" style="background:var(--blue-light);">🎯</div><div><div class="stat-val" id="statPrecision">0%</div><div class="stat-lbl">Precisión</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7;">📝</div><div><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Practicadas</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7;">🔥</div><div><div class="stat-val" id="statRacha">0</div><div class="stat-lbl">Racha días</div></div></div>
+      </div>
+      <div class="sec-label">Modos de práctica</div>
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="modo-card" onclick="showPage('practicar')"><div class="modo-icon">📖</div><div class="modo-title">Por tema</div><div class="modo-desc">Elige área y tema del balotario UNC</div><span class="modo-tag" style="background:var(--blue-light);color:var(--blue);">Balotario</span></div>
+        <div class="modo-card" onclick="startCronometrado()"><div class="modo-icon">⏱️</div><div class="modo-title">Cronometrado</div><div class="modo-desc">Presión de tiempo como el examen real</div><span class="modo-tag" style="background:var(--amber-light);color:var(--amber);">Examen</span></div>
+        <div class="modo-card" onclick="showPage('practicar')"><div class="modo-icon">🔄</div><div class="modo-title">Mis errores</div><div class="modo-desc">Repasa las preguntas que fallaste</div><span class="modo-tag" style="background:var(--red-light);color:var(--red);">Refuerzo</span></div>
+        <div class="modo-card" onclick="showPage('simulacro')"><div class="modo-icon">🏆</div><div class="modo-title">Simulacro</div><div class="modo-desc">90 preguntas con tiempo oficial UNC</div><span class="modo-tag" style="background:var(--purple-light);color:var(--purple);">Completo</span></div>
+      </div>
+      <div class="sec-label">Tu progreso por área</div>
+      <div class="card" id="progCard" style="margin-bottom:24px;"><div style="font-size:13px;color:var(--text3);text-align:center;padding:12px 0;">Practica para ver tu progreso aquí 📊</div></div>
+      <div class="sec-label">Simulacro rápido</div>
+      <div class="card card-lg" style="display:flex;align-items:center;gap:16px;cursor:pointer;border-color:var(--blue-mid);" onclick="showPage('simulacro')">
+        <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎯</div>
+        <div style="flex:1;"><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px;">Simulacro oficial UNC 2025</div><div style="font-size:13px;color:var(--text3);">90 preguntas · 120 minutos · Estructura real del examen</div></div>
+        <div style="font-size:22px;">→</div>
+      </div>
+    </div>
+
+    <!-- PRACTICAR -->
+    <div class="page" id="page-practicar">
+      <div class="page-header"><h1>Practicar</h1><p>Elige tu módulo, área, tema y nivel de dificultad</p></div>
+      <div class="card" style="margin-bottom:16px;"><div class="sec-label">Tu módulo</div><div class="pill-row" id="modPills"></div></div>
+      <div class="card" style="margin-bottom:16px;"><div class="sec-label">Área</div><div id="areaList"></div></div>
+      <div class="card" id="temaCard" style="margin-bottom:16px;display:none;"><div class="sec-label">Tema específico <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></div><div id="temaList" style="max-height:280px;overflow-y:auto;"></div></div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="sec-label">Nivel de dificultad</div>
+        <div class="nivel-grid">
+          <div class="nivel-card sel" onclick="selNivel(1,this)"><div class="nivel-emoji">🟢</div><div class="nivel-name">Básico</div><div class="nivel-uni">UNC</div></div>
+          <div class="nivel-card" onclick="selNivel(2,this)"><div class="nivel-emoji">🔵</div><div class="nivel-name">Intermedio</div><div class="nivel-uni">UNALM · UPCH</div></div>
+          <div class="nivel-card" onclick="selNivel(3,this)"><div class="nivel-emoji">🟣</div><div class="nivel-name">Avanzado</div><div class="nivel-uni">PUCP</div></div>
+          <div class="nivel-card" onclick="selNivel(4,this)"><div class="nivel-emoji">🔴</div><div class="nivel-name">Máximo</div><div class="nivel-uni">UNMSM · UNI</div></div>
+        </div>
+        <div class="sec-label" style="margin-top:4px;">Cantidad de preguntas</div>
+        <div class="cant-row">
+          <div class="cant-btn" onclick="changeCant(-5)">−</div>
+          <div class="cant-display"><div class="cant-val" id="cantVal">10</div><div class="cant-lbl">preguntas</div></div>
+          <div class="cant-btn" onclick="changeCant(5)">+</div>
+        </div>
+        <button class="btn btn-primary btn-full" id="btnEmpezar" onclick="startQuiz()" disabled>Selecciona un área para comenzar</button>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="page" id="page-quiz" style="padding:0;margin:-28px -32px;">
+      <div class="quiz-topbar">
+        <div class="quiz-back" onclick="backFromQuiz()">←</div>
+        <div class="quiz-info">
+          <div class="quiz-meta"><span class="quiz-counter" id="quizCounter">Pregunta 1 de 10</span><span class="quiz-timer" id="quizTimer"></span></div>
+          <div class="quiz-prog"><div class="quiz-prog-fill" id="quizProgFill" style="width:10%;"></div></div>
+        </div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-tags"><span class="tag tag-blue" id="quizAreaTag">Área</span><span class="tag" id="quizNivelTag">Nivel</span></div>
+        <div class="quiz-question" id="quizQuestion">Cargando pregunta...</div>
+        <div class="quiz-opts" id="quizOpts"></div>
+        <div class="solucionario" id="solucionario">
+          <div id="solLoading" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text3);"><div class="dot-pulse"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Cargando explicación...</div>
+          <div id="solContent" style="display:none;">
+            <div class="sol-header"><span class="sol-icon" id="solIcon">✅</span><span class="sol-title" id="solTitle">Respuesta correcta</span></div>
+            <div class="sol-text" id="solText"></div>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-nav-row">
+        <button class="btn btn-outline" id="btnSiguiente" onclick="nextQ()" style="display:none;flex:1;">Siguiente →</button>
+        <button class="btn btn-primary" id="btnResultados" onclick="showResults()" style="display:none;flex:1;">Ver resultados 🎉</button>
+      </div>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div class="page" id="page-resultados">
+      <div class="result-hero"><div class="result-score-big" id="resScore">0%</div><div class="result-title-h" id="resTitle">Resultado</div><div class="result-sub" id="resSub"></div></div>
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="card" style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--green);" id="resCorrectas">0</div><div style="font-size:12px;color:var(--text3);">Correctas</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--red);" id="resIncorrectas">0</div><div style="font-size:12px;color:var(--text3);">Incorrectas</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--amber);" id="resTiempo">0s</div><div style="font-size:12px;color:var(--text3);">Tiempo</div></div>
+      </div>
+      <div class="sec-label">Revisión de respuestas</div>
+      <div id="resultReview" style="margin-bottom:20px;"></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-primary btn-full" onclick="showPage('practicar')">Practicar de nuevo</button>
+        <button class="btn btn-outline btn-full" onclick="showPage('inicio')">← Volver al inicio</button>
+      </div>
+    </div>
+
+    <!-- SIMULACRO -->
+    <div class="page" id="page-simulacro">
+      <div class="page-header"><h1>Simulacros</h1><p>Examen completo en condiciones reales de la UNC</p></div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="sec-label">Tipo de simulacro</div>
+        <div class="sim-card sel" onclick="selSimType(this,'oficial')"><div class="sim-icon" style="background:var(--blue-light);">🎯</div><div><div class="sim-card-title">Simulacro oficial UNC</div><div class="sim-card-desc">Estructura exacta · 20 preguntas representativas · cronometrado</div></div></div>
+        <div class="sim-card" onclick="selSimType(this,'personalizado')"><div class="sim-icon" style="background:var(--purple-light);">⚙️</div><div><div class="sim-card-title">Simulacro personalizado</div><div class="sim-card-desc">Elige módulo, áreas y nivel de dificultad</div></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px;"><div class="sec-label">Módulo</div><div class="pill-row" id="simModPills"></div></div>
+      <button class="btn btn-primary btn-full" onclick="startSimulacro()">🚀 Iniciar simulacro</button>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="page" id="page-perfil">
+      <div class="profile-hero-card"><div class="profile-avatar-big" id="profileAvatarBig">?</div><div><div class="profile-name-big" id="profileNameBig">Invitado</div><div class="profile-mod-txt" id="profileModTxt">Sin módulo seleccionado</div></div></div>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="card"><div style="font-size:26px;font-weight:800;font-family:'Syne',sans-serif;" id="pTotal">0</div><div style="font-size:12px;color:var(--text3);">Preguntas respondidas</div></div>
+        <div class="card"><div style="font-size:26px;font-weight:800;color:var(--blue);font-family:'Syne',sans-serif;" id="pPrecision">0%</div><div style="font-size:12px;color:var(--text3);">Precisión global</div></div>
+        <div class="card"><div style="font-size:26px;font-weight:800;color:var(--purple);font-family:'Syne',sans-serif;" id="pSims">0</div><div style="font-size:12px;color:var(--text3);">Simulacros</div></div>
+        <div class="card"><div style="font-size:26px;font-weight:800;color:var(--amber);font-family:'Syne',sans-serif;" id="pRacha">0🔥</div><div style="font-size:12px;color:var(--text3);">Racha actual</div></div>
+      </div>
+      <div class="sec-label">Logros</div>
+      <div class="grid-3" id="logrosGrid" style="margin-bottom:20px;"></div>
+      <button class="btn btn-outline btn-full" onclick="openRegister()">✏️ Editar perfil</button>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="bnav-item active" id="bnav-inicio" onclick="showPage('inicio')"><div class="bnav-icon">🏠</div><div class="bnav-label">Inicio</div></button>
+    <button class="bnav-item" id="bnav-practicar" onclick="showPage('practicar')"><div class="bnav-icon">📚</div><div class="bnav-label">Practicar</div></button>
+    <button class="bnav-item" id="bnav-simulacro" onclick="showPage('simulacro')"><div class="bnav-icon">🏆</div><div class="bnav-label">Simulacro</div></button>
+    <button class="bnav-item" id="bnav-perfil" onclick="showPage('perfil')"><div class="bnav-icon">👤</div><div class="bnav-label">Perfil</div></button>
+  </nav>
+</div>
+
+<script>
+const BALOTARIO={"Razonamiento Matemático":["Razonamiento aritmético","Razonamiento algebraico","Seriación de letras, figuras y números","Razonamiento lógico","Razonamiento geométrico","Suficiencia de datos","Estadística y combinatoria"],"Razonamiento Verbal":["Sinonimia y antonimia contextual","Comprensión de lectura","Plan de redacción","Oraciones eliminadas","Término excluido","Conectores lógicos","Oraciones incompletas"],"Aritmética":["Lógica proposicional","Teoría de conjuntos","Sistemas de numeración","Números naturales y enteros","Divisibilidad","Números racionales e irracionales","Sistema de números reales","Razones y proporciones","Magnitudes proporcionales","Interés simple y compuesto","Mezcla y aleación","Estadística y probabilidades"],"Álgebra":["Teoría de exponentes","Polinomios","Productos notables y factorización","Radicación","Ecuaciones lineales","Números complejos","Ecuaciones cuadráticas","Sistemas de ecuaciones","Inecuaciones","Valor absoluto","Funciones","Función exponencial y logarítmica","Sucesiones y series"],"Geometría":["Geometría plana básica","Triángulos","Polígonos","Circunferencia","Semejanza y proporcionalidad","Relaciones métricas","Polígonos regulares","Áreas","Geometría del espacio","Secciones cónicas"],"Trigonometría":["Ángulo trigonométrico","Razones trigonométricas agudas","Razones de cualquier ángulo","Circunferencia trigonométrica","Identidades trigonométricas","Funciones trigonométricas","Ecuaciones trigonométricas","Resolución de triángulos"],"Lenguaje":["La comunicación","El lenguaje","La puntuación","Acentuación y tildación","Morfología","Sintaxis","El sustantivo","El verbo","El adjetivo","El pronombre","El artículo","El adverbio","La preposición","La conjunción"],"Literatura":["Literatura universal","Literatura española","Literatura hispanoamericana","Literatura peruana colonial","Literatura peruana romántica y modernista","Literatura peruana vanguardista","Literatura peruana contemporánea"],"Historia":["Teoría de la historia","Origen del hombre","Civilizaciones antiguas","Poblamiento de América","Civilizaciones andinas","Cultura peruana","Desarrollo histórico del Perú prehispánico","Conquista del Perú","Virreinato","Independencia","República","Guerra con Chile","Siglo XX","Siglo XXI"],"Geografía":["Ciencia geográfica","La Tierra en el espacio","Líneas imaginarias","El Perú","Relieve peruano","Hidrografía","Climatología","Regiones naturales","Recursos naturales"],"Economía":["Fundamentos de economía","Empresa y mercado","Indicadores macroeconómicos","Comercio internacional","Política fiscal y monetaria","Sectores productivos del Perú"],"Filosofía":["La filosofía","Gnoseología","Epistemología","Axiología","Ética"],"Psicología":["Comportamiento humano","Desarrollo humano","Adolescencia","Aprendizaje","Procesos cognitivos","Procesos afectivos","Personalidad","La familia"],"Física":["Magnitudes y análisis dimensional","Vectores","Estática","Cinemática","Dinámica","Trabajo y energía","Temperatura y calor","Fluidos","Electricidad","Electromagnetismo"],"Química General":["Materia y energía","Sistema Internacional","Teorías atómicas","Tabla periódica","Configuración electrónica","Enlace químico","Nomenclatura inorgánica","Reacciones químicas","Estequiometría","Disoluciones","Estados de la materia","Equilibrio químico","Electroquímica"],"Química Orgánica":["Átomo de carbono","Hidrocarburos","Funciones oxigenadas","Lípidos","Carbohidratos","Proteínas"],"Biología":["Niveles de organización","Biomoléculas","Organización celular","Fotosíntesis y respiración","Tejidos","Reproducción celular","Reproducción sexual","Genética","Sistema nervioso y endocrino","Reino Animalia","Reino Plantae","Evolución","Salud y enfermedades","Biotecnología"],"Ecología":["Ecología básica","Ambiente natural","Ecosistema","Cadenas tróficas","Dinámica de poblaciones","Biodiversidad del Perú","Problemas ambientales","Contaminación ambiental"]};
+const MODULOS={A:{nombre:"Módulo A",carreras:"Ingenierías y Empresariales",areas:["Razonamiento Matemático","Razonamiento Verbal","Aritmética","Álgebra","Geometría","Trigonometría","Física","Química General","Química Orgánica","Biología","Ecología","Historia","Geografía","Economía","Filosofía","Psicología"]},B:{nombre:"Módulo B",carreras:"Medicina Humana",areas:["Razonamiento Matemático","Razonamiento Verbal","Aritmética","Biología","Ecología","Economía","Filosofía","Física","Geografía","Geometría","Historia","Lenguaje","Literatura","Psicología","Química General","Trigonometría"]},C:{nombre:"Módulo C",carreras:"Derecho, Sociología, Educación",areas:["Razonamiento Matemático","Razonamiento Verbal","Álgebra","Aritmética","Biología","Ecología","Economía","Filosofía","Física","Geometría","Historia","Lenguaje","Literatura","Psicología","Química General","Trigonometría"]},D:{nombre:"Módulo D",carreras:"Ciencias Agrarias",areas:["Razonamiento Matemático","Razonamiento Verbal","Aritmética","Biología","Ecología","Economía","Filosofía","Física","Geografía","Geometría","Historia","Lenguaje","Literatura","Psicología","Química General","Trigonometría"]},E:{nombre:"Módulo E",carreras:"Salud y Biológicas",areas:["Razonamiento Matemático","Razonamiento Verbal","Álgebra","Aritmética","Biología","Ecología","Economía","Filosofía","Física","Geometría","Historia","Lenguaje","Literatura","Psicología","Química General","Trigonometría"]}};
+const AREA_COLORS={"Razonamiento Matemático":"#2563eb","Razonamiento Verbal":"#7c3aed","Aritmética":"#16a34a","Álgebra":"#0891b2","Geometría":"#0284c7","Trigonometría":"#6366f1","Lenguaje":"#d97706","Literatura":"#b45309","Historia":"#dc2626","Geografía":"#ea580c","Economía":"#9333ea","Filosofía":"#7c3aed","Psicología":"#db2777","Física":"#2563eb","Química General":"#16a34a","Química Orgánica":"#0891b2","Biología":"#15803d","Ecología":"#166534"};
+const NVLDESC={1:"UNC — básico",2:"UNALM/UPCH — intermedio",3:"PUCP — avanzado",4:"UNMSM/UNI — máximo"};
+const NVLTAG={1:"tag-green",2:"tag-blue",3:"tag-purple",4:"tag-red"};
+
+let S={
+  user:JSON.parse(localStorage.getItem('punc_user')||'null'),
+  stats:JSON.parse(localStorage.getItem('punc_stats')||'{"total":0,"correctas":0,"racha":0,"simulacros":0,"porArea":{}}'),
+  modulo:'C',area:null,tema:null,nivel:1,cantidad:10,simType:'oficial',
+  quiz:{questions:[],current:0,answered:false,results:[],startTime:null,timerInt:null,total:10}
+};
+
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loadingScreen').style.display='none';
+    if(!S.user) setTimeout(()=>document.getElementById('registerModal').classList.add('open'),600);
+    else{S.modulo=S.user.mod||'C';updateUI();}
+    buildModPills();buildSimModPills();buildAreaList();buildLogros();
+  },2100);
+});
+
+function registerUser(){
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const mod=document.getElementById('regMod').value||'C';
+  if(!name){showToast('Ingresa tu nombre');return;}
+  const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  S.user={name,email,mod,initials};S.modulo=mod;
+  localStorage.setItem('punc_user',JSON.stringify(S.user));
+  document.getElementById('registerModal').classList.remove('open');
+  updateUI();buildAreaList();
+  showToast('¡Bienvenido, '+name.split(' ')[0]+'! 🎉');
+}
+function skipRegister(){S.user={name:'Invitado',email:'',mod:'C',initials:'👤'};S.modulo='C';document.getElementById('registerModal').classList.remove('open');updateUI();}
+function openRegister(){document.getElementById('registerModal').classList.add('open');}
+
+function updateUI(){
+  const u=S.user;if(!u)return;
+  const fn=u.name.split(' ')[0];
+  const mod=MODULOS[u.mod]||MODULOS['C'];
+  document.getElementById('heroGreeting').textContent='Buen día, '+fn;
+  document.getElementById('heroName').textContent='¡Hola, '+fn+'! 👋';
+  document.getElementById('heroMod').textContent='📌 '+mod.nombre+' — '+mod.carreras;
+  document.getElementById('topAvatar').textContent=u.initials||'?';
+  document.getElementById('sidebarName').textContent=u.name;
+  document.getElementById('sidebarMod').textContent=mod.nombre;
+  document.getElementById('profileAvatarBig').textContent=u.initials||'?';
+  document.getElementById('profileNameBig').textContent=u.name;
+  document.getElementById('profileModTxt').textContent=mod.nombre+' — '+mod.carreras;
+  S.modulo=u.mod;updateStats();updateProgreso();selectModPill(u.mod);
+}
+function updateStats(){
+  const s=S.stats;const pct=s.total>0?Math.round(s.correctas/s.total*100):0;
+  document.getElementById('statPrecision').textContent=pct+'%';
+  document.getElementById('statTotal').textContent=s.total;
+  document.getElementById('statRacha').textContent=s.racha;
+  document.getElementById('pTotal').textContent=s.total;
+  document.getElementById('pPrecision').textContent=pct+'%';
+  document.getElementById('pSims').textContent=s.simulacros;
+  document.getElementById('pRacha').textContent=s.racha+'🔥';
+}
+function updateProgreso(){
+  const s=S.stats;const areas=Object.keys(s.porArea);
+  if(!areas.length){document.getElementById('progCard').innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px 0;">Practica para ver tu progreso aquí 📊</div>';return;}
+  let html='';
+  areas.slice(0,8).forEach(a=>{
+    const d=s.porArea[a]||{t:0,c:0};const pct=d.t>0?Math.round(d.c/d.t*100):0;
+    const color=AREA_COLORS[a]||'#2563eb';const label=a.length>18?a.substring(0,17)+'…':a;
+    html+=`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:13px;color:var(--text2);font-weight:500;">${label}</span><span style="font-size:12px;font-weight:700;color:${color};">${pct}%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${color};"></div></div></div>`;
+  });
+  document.getElementById('progCard').innerHTML=html;
+}
+
+function buildModPills(){document.getElementById('modPills').innerHTML=Object.entries(MODULOS).map(([k,v])=>`<div class="pill ${S.modulo===k?'sel':''}" data-mod="${k}" onclick="selMod('${k}','modPills')">${v.nombre}</div>`).join('');}
+function buildSimModPills(){document.getElementById('simModPills').innerHTML=Object.entries(MODULOS).map(([k,v])=>`<div class="pill ${S.modulo===k?'sel':''}" data-mod="${k}" onclick="selSimMod('${k}')">${v.nombre}</div>`).join('');}
+function selMod(mod,pid){S.modulo=mod;document.querySelectorAll(`#${pid} .pill`).forEach(p=>p.classList.remove('sel'));document.querySelector(`#${pid} [data-mod="${mod}"]`)?.classList.add('sel');buildAreaList();}
+function selSimMod(mod){S.modulo=mod;document.querySelectorAll('#simModPills .pill').forEach(p=>p.classList.remove('sel'));document.querySelector(`#simModPills [data-mod="${mod}"]`)?.classList.add('sel');}
+function selectModPill(mod){document.querySelectorAll('#modPills .pill').forEach(p=>p.classList.remove('sel'));document.querySelector(`#modPills [data-mod="${mod}"]`)?.classList.add('sel');}
+
+function buildAreaList(){
+  const mod=MODULOS[S.modulo||'C'];const areas=mod?mod.areas:Object.keys(BALOTARIO);
+  document.getElementById('areaList').innerHTML=areas.map(a=>{
+    const color=AREA_COLORS[a]||'#2563eb';const temas=BALOTARIO[a]?BALOTARIO[a].length:0;
+    const d=S.stats.porArea[a]||{t:0,c:0};const pct=d.t>0?Math.round(d.c/d.t*100):0;
+    return `<div class="area-item" onclick="selArea('${a.replace(/'/g,"\\'")}',this)"><div class="area-dot" style="background:${color};"></div><div class="area-name">${a}</div><div class="area-count">${temas} temas</div><div class="area-pct">${pct>0?pct+'%':''}</div></div>`;
+  }).join('');
+  S.area=null;S.tema=null;document.getElementById('temaCard').style.display='none';
+  setBtn(false,'Selecciona un área para comenzar');
+}
+function selArea(area,el){
+  document.querySelectorAll('.area-item').forEach(i=>i.classList.remove('sel'));
+  el.classList.add('sel');S.area=area;S.tema=null;buildTemaList(area);
+  setBtn(true,'Empezar con '+area.substring(0,25)+(area.length>25?'…':''));
+}
+function buildTemaList(area){
+  const temas=BALOTARIO[area]||[];
+  document.getElementById('temaCard').style.display='block';
+  document.getElementById('temaList').innerHTML=temas.map(t=>`<div class="tema-item" onclick="selTema('${t.replace(/'/g,"\\'")}',this)"><div class="tema-name">${t}</div><div class="tema-check"></div></div>`).join('');
+}
+function selTema(tema,el){
+  document.querySelectorAll('.tema-item').forEach(i=>{i.classList.remove('sel');i.querySelector('.tema-check').textContent='';});
+  el.classList.add('sel');S.tema=tema;el.querySelector('.tema-check').textContent='✓';
+  setBtn(true,'Practicar: '+tema.substring(0,30)+(tema.length>30?'…':''));
+}
+function selNivel(n,el){S.nivel=n;document.querySelectorAll('.nivel-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+let cant=10;
+function changeCant(d){cant=Math.max(5,Math.min(30,cant+d));document.getElementById('cantVal').textContent=cant;S.cantidad=cant;}
+function setBtn(e,t){const b=document.getElementById('btnEmpezar');b.disabled=!e;b.textContent=t;}
+
+async function startQuiz(cronometrado=false,simulacro=false){
+  if(!S.area&&!simulacro){showToast('Selecciona un área primero');return;}
+  showPage('quiz');
+  const q=S.quiz;q.questions=[];q.current=0;q.results=[];q.answered=false;
+  q.startTime=Date.now();q.total=simulacro?20:S.cantidad;
+  if(q.timerInt)clearInterval(q.timerInt);
+  if(cronometrado){
+    let rem=q.total*90;
+    q.timerInt=setInterval(()=>{rem--;const m=Math.floor(rem/60),s=rem%60;document.getElementById('quizTimer').textContent=`⏱ ${m}:${s.toString().padStart(2,'0')}`;if(rem<=0){clearInterval(q.timerInt);showResults();}},1000);
+  }else{document.getElementById('quizTimer').textContent='';}
+  renderQuizHeader();await genQ();
+}
+
+function renderQuizHeader(){
+  const q=S.quiz;
+  document.getElementById('quizCounter').textContent=`Pregunta ${q.current+1} de ${q.total}`;
+  document.getElementById('quizProgFill').style.width=((q.current+1)/q.total*100)+'%';
+  document.getElementById('quizAreaTag').textContent=S.tema||S.area||'General';
+  const nt=document.getElementById('quizNivelTag');nt.className='tag '+NVLTAG[S.nivel];nt.textContent=NVLDESC[S.nivel];
+}
+
+async function genQ(){
+  const area=S.area||'Razonamiento Verbal',tema=S.tema,nivel=S.nivel;
+  const prev=S.quiz.questions.map(q=>q.pregunta.substring(0,50)).join('|');
+  document.getElementById('quizQuestion').textContent='Generando pregunta con IA...';
+  document.getElementById('quizOpts').innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:16px 0;color:var(--text3);font-size:13px;"><div class="dot-pulse"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Generando pregunta...</div>`;
+  document.getElementById('solucionario').classList.remove('visible');
+  document.getElementById('btnSiguiente').style.display='none';
+  document.getElementById('btnResultados').style.display='none';
+  try{
+    const r=await fetch('/api/preguntas',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({area,tema,nivel,preguntasAnteriores:prev?prev.split('|'):[]})
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Error '+r.status);}
+    const data=await r.json();
+    S.quiz.questions.push({...data,area,tema});
+    renderQ(data);
+  }catch(e){
+    document.getElementById('quizQuestion').textContent='Error: '+e.message;
+    document.getElementById('quizOpts').innerHTML=`<button class="btn btn-outline" onclick="genQ()" style="margin-top:8px;">🔄 Reintentar</button>`;
+  }
+}
+
+function renderQ(q){
+  document.getElementById('quizQuestion').textContent=q.pregunta;
+  document.getElementById('quizOpts').innerHTML=q.opciones.map((opt,i)=>{
+    const L=['A','B','C','D','E'];
+    return `<div class="quiz-opt" onclick="selAns(${i},this)"><div class="opt-letter">${L[i]}</div><div class="opt-text">${opt.replace(/^[A-E]\)\s*/,'')}</div></div>`;
+  }).join('');
+  S.quiz.answered=false;
+}
+
+function selAns(idx,el){
+  const q=S.quiz;if(q.answered)return;q.answered=true;
+  const cur=q.questions[q.current];const L=['A','B','C','D','E'];
+  const sel=L[idx];const ok=sel===cur.correcta;const ci=L.indexOf(cur.correcta);
+  document.querySelectorAll('.quiz-opt').forEach(o=>o.classList.add('done'));
+  el.classList.add(ok?'correct':'wrong');
+  if(!ok)document.querySelectorAll('.quiz-opt')[ci].classList.add('correct');
+  q.results.push({pregunta:cur.pregunta,sel,correcta:cur.correcta,ok,explicacion:cur.explicacion,area:cur.area});
+  guardarStat(cur.area,ok);showSol(cur.explicacion,ok);
+  const isLast=q.current>=q.total-1;
+  if(!isLast)document.getElementById('btnSiguiente').style.display='block';
+  else document.getElementById('btnResultados').style.display='block';
+}
+
+function showSol(explicacion,ok){
+  const sol=document.getElementById('solucionario');
+  sol.className='solucionario visible'+(ok?'':' wrong-sol');
+  document.getElementById('solLoading').style.display='none';
+  document.getElementById('solContent').style.display='block';
+  document.getElementById('solIcon').textContent=ok?'✅':'💡';
+  document.getElementById('solTitle').textContent=ok?'¡Correcto! Aquí te explicamos por qué:':'Respuesta incorrecta — así es como se resuelve:';
+  document.getElementById('solTitle').style.color=ok?'var(--green)':'var(--amber)';
+  document.getElementById('solText').textContent=explicacion;
+}
+
+async function nextQ(){
+  S.quiz.current++;renderQuizHeader();
+  document.getElementById('btnSiguiente').style.display='none';
+  document.getElementById('btnResultados').style.display='none';
+  document.getElementById('solucionario').classList.remove('visible');
+  if(S.quiz.current<S.quiz.questions.length)renderQ(S.quiz.questions[S.quiz.current]);
+  else await genQ();
+}
+
+function guardarStat(area,ok){
+  const s=S.stats;s.total++;if(ok)s.correctas++;
+  if(!s.porArea[area])s.porArea[area]={t:0,c:0};
+  s.porArea[area].t++;if(ok)s.porArea[area].c++;
+  localStorage.setItem('punc_stats',JSON.stringify(s));
+}
+
+function showResults(){
+  if(S.quiz.timerInt)clearInterval(S.quiz.timerInt);
+  const results=S.quiz.results;const total=results.length;
+  const correctas=results.filter(r=>r.ok).length;const pct=total>0?Math.round(correctas/total*100):0;
+  const seg=Math.round((Date.now()-S.quiz.startTime)/1000);const min=Math.floor(seg/60),sec=seg%60;
+  document.getElementById('resScore').textContent=pct+'%';
+  document.getElementById('resCorrectas').textContent=correctas;
+  document.getElementById('resIncorrectas').textContent=total-correctas;
+  document.getElementById('resTiempo').textContent=min>0?`${min}m ${sec}s`:`${sec}s`;
+  const msgs=pct>=90?['¡Excelente! 🏆','Dominas este tema a la perfección.']:pct>=70?['¡Muy bien! 🎯','Sigue practicando para llegar al 100%.']:pct>=50?['Vas por buen camino 📈','Refuerza los temas donde fallaste.']:['¡Sigue adelante! 💪','Repasa la teoría y vuelve a intentarlo.'];
+  document.getElementById('resTitle').textContent=msgs[0];document.getElementById('resSub').textContent=msgs[1];
+  document.getElementById('resultReview').innerHTML=results.map(r=>`<div class="review-item"><div class="review-q">${r.pregunta.substring(0,130)}${r.pregunta.length>130?'...':''}</div><div class="review-ans-row"><span class="review-badge" style="background:${r.ok?'var(--green-light)':'var(--red-light)'};color:${r.ok?'var(--green)':'var(--red)'};">${r.ok?'✓ Correcta':'✗ Tu resp: '+r.sel}</span>${!r.ok?`<span class="review-badge" style="background:var(--green-light);color:var(--green);">✓ Correcta: ${r.correcta}</span>`:''}</div></div>`).join('');
+  showPage('resultados');updateStats();updateProgreso();buildLogros();
+}
+
+function startCronometrado(){if(!S.area){showPage('practicar');showToast('Primero selecciona un área');return;}startQuiz(true,false);}
+function selSimType(el,type){document.querySelectorAll('.sim-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');S.simType=type;}
+function startSimulacro(){
+  const mod=MODULOS[S.modulo];if(!mod){showToast('Selecciona un módulo');return;}
+  S.area=mod.areas[Math.floor(Math.random()*mod.areas.length)];
+  S.stats.simulacros++;localStorage.setItem('punc_stats',JSON.stringify(S.stats));
+  startQuiz(true,true);
+}
+function backFromQuiz(){if(S.quiz.timerInt)clearInterval(S.quiz.timerInt);showPage('practicar');}
+
+function buildLogros(){
+  const s=S.stats;
+  const L=[{icon:'🎯',name:'Primera pregunta',ok:s.total>=1},{icon:'💯',name:'10 correctas',ok:s.correctas>=10},{icon:'📚',name:'50 preguntas',ok:s.total>=50},{icon:'🔥',name:'Racha 3 días',ok:s.racha>=3},{icon:'🏆',name:'Simulacro completo',ok:s.simulacros>=1},{icon:'⭐',name:'80% precisión',ok:s.total>5&&(s.correctas/s.total)>=0.8}];
+  document.getElementById('logrosGrid').innerHTML=L.map(l=>`<div class="logro ${l.ok?'unlocked':''}"><div class="logro-icon">${l.icon}</div><div class="logro-name">${l.name}</div></div>`).join('');
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item,.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  document.getElementById('bnav-'+name)?.classList.add('active');
+  const mc=document.getElementById('mainContent');
+  mc.style.padding=name==='quiz'?'0':window.innerWidth>768?'28px 32px':'16px';
+  if(['perfil','inicio'].includes(name)){updateStats();}
+  if(name==='inicio')updateProgreso();
+  window.scrollTo(0,0);
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+if(S.user)S.modulo=S.user.mod||'C';
+</script>
+</body>
+</html>
